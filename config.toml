@@ -1,0 +1,13 @@
+# Zola configuration for the CV / portfolio site.
+#
+# visible DRAFT content (front-matter `draft = true`) is never rendered —
+# the seed rows in this repo are all drafts pending human review.
+
+base_url = "https://Cairnstew.github.io"
+title = "Sean Cairns — CV / Portfolio"
+description = "Work, skills and hobbies of Sean Cairns."
+author = "Sean Cairns"
+default_language = "en"
+build_search_index = false
+
+# No theme: templates live in templates/.

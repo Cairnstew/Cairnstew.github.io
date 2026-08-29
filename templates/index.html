@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ config.title }}</h1>
+  {{ section.content | safe }}
+  <h2>Sections</h2>
+  <ul>
+    {% for s in section.subsections -%}
+      {% set sub = get_section(path=s) -%}
+      <li><a href="{{ sub.permalink }}">{{ sub.title }}</a></li>
+    {%- endfor %}
+  </ul>
+{% endblock content %}
