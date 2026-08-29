@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS skills (
     name        TEXT NOT NULL,
     category    TEXT NOT NULL DEFAULT '',
     proficiency TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
     sort_order  INTEGER NOT NULL DEFAULT 0,
     published   INTEGER NOT NULL DEFAULT 0 CHECK (published IN (0, 1)),
     created_at  TEXT NOT NULL DEFAULT (datetime('now')),
