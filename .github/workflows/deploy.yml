@@ -1,0 +1,61 @@
+# Deploy the CV site to GitHub Pages.
+#
+# FIRST USE of this exact pattern anywhere near nixos-config (Tier 0 §2.3 —
+# no existing workflow uses upload-pages-artifact/deploy-pages). Mirrors the
+# install-nix + nix build skeleton of nixos-config's .github/workflows/ci.yml.
+#
+# Only runs after this repo is pushed (this repo is still local; nothing here
+# executes until the human creates the Cairnstew/CV remote AND turns on
+# Pages → Source: GitHub Actions).
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; superseded runs are cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+            fallback = true
+
+      - name: Build site (zola, nixpkgs 9ae611a pin)
+        run: |
+          nix build .#site --out-link site
+          ls -la site
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # deploy-pages is the only deploy step for this repo (user page:
+  # https://Cairnstew.github.io). No second job needed — deployment runs
+  # from the artifact uploaded above.
