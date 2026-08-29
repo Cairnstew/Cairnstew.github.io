@@ -18,10 +18,12 @@
   <header>
     <nav>
       <a href="{{ get_url(path="/") }}">Home</a>
-      {% for s in section.subsections -%}
-        {% set sub = get_section(path=s) -%}
-        <a href="{{ sub.permalink }}">{{ sub.title }}</a>
-      {%- endfor %}
+      {% if section is defined and section.subsections -%}
+        {% for s in section.subsections -%}
+          {% set sub = get_section(path=s) -%}
+          <a href="{{ sub.permalink }}">{{ sub.title }}</a>
+        {%- endfor %}
+      {%- endif %}
     </nav>
   </header>
   <main>
