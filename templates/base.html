@@ -140,6 +140,7 @@
     .nav-links { display: flex; gap: 1.1rem; align-items: center; }
     .nav-links a { color: var(--muted); font-size: 0.95rem; font-weight: 500; }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-links a[aria-current="page"] { color: var(--accent); font-weight: 700; }
     .icon-btn {
       display: inline-flex;
       align-items: center;
@@ -226,18 +227,27 @@
     .btn-primary:hover { filter: brightness(1.08); }
 
     /* ── Section blocks on the index ───────────────────────────── */
-    .block { margin-top: 2.6rem; }
+    .block { margin-top: 3rem; }
     .block-head {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 1rem;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 0.5rem;
-      margin-bottom: 1.2rem;
+      padding-bottom: 0.55rem;
+      margin-bottom: 1.3rem;
     }
-    .block-head h2 { margin: 0; font-size: 1.3rem; }
+    .block-head h2 { margin: 0; font-size: 1.35rem; display: inline-flex; align-items: center; gap: 0.55rem; }
+    .block-head h2::before {
+      content: "";
+      width: 0.32rem;
+      height: 1.1em;
+      border-radius: 999px;
+      background: var(--accent-gradient);
+      flex: 0 0 auto;
+    }
     .block-head .more { font-size: 0.9rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+    section[id], h1[id], h2[id], h3[id] { scroll-margin-top: 5rem; }
 
     /* ── Cards ─────────────────────────────────────────────────── */
     .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
@@ -406,10 +416,10 @@
     <nav class="nav">
       <a class="brand" href="{{ get_url(path="/") }}">{{ config.title }}</a>
       <div class="nav-links">
-        <a href="{{ get_url(path="/") }}">Home</a>
-        <a href="{{ get_url(path="skills/") }}">Skills</a>
-        <a href="{{ get_url(path="experience/") }}">Experience</a>
-        <a href="{{ get_url(path="hobbies/") }}">Hobbies</a>
+        <a href="{{ get_url(path="/") }}" {% if current_path == "/" %}aria-current="page"{% endif %}>Home</a>
+        <a href="{{ get_url(path="skills/") }}" {% if current_path is starting_with("/skills") %}aria-current="page"{% endif %}>Skills</a>
+        <a href="{{ get_url(path="experience/") }}" {% if current_path is starting_with("/experience") %}aria-current="page"{% endif %}>Experience</a>
+        <a href="{{ get_url(path="hobbies/") }}" {% if current_path is starting_with("/hobbies") %}aria-current="page"{% endif %}>Hobbies</a>
       </div>
       <button id="theme-toggle" class="icon-btn theme-toggle" type="button" aria-label="Toggle light / dark theme" title="Toggle light / dark theme">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
