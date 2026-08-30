@@ -198,6 +198,9 @@
       background-clip: text;
       color: transparent;
     }
+    @supports not (background-clip: text) {
+      .hero h1 { background: none; color: var(--accent-strong); }
+    }
     .hero .role {
       font-size: 1.15rem;
       font-weight: 550;
