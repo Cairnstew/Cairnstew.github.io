@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f3">
+  <meta name="theme-color" content="#0e0d10" media="(prefers-color-scheme: dark)">
   <title>{% block title %}{{ config.title }}{% endblock title %}</title>
   <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
 
@@ -388,11 +390,32 @@
     .site-footer a { color: var(--muted); }
     .site-footer a:hover { color: var(--accent); }
 
+    @media (max-width: 900px) {
+      .grid, .hobby-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    }
+
     @media (max-width: 640px) {
-      .nav-links { gap: 0.8rem; }
+      .nav { flex-wrap: wrap; row-gap: 0.35rem; padding: 0.55rem 1rem; }
+      .nav-links { order: 3; width: 100%; justify-content: flex-start; gap: 1rem; padding: 0.2rem 0 0.1rem; border-top: 1px solid var(--border); padding-top: 0.45rem; }
+      .nav-links a { padding: 0.25rem 0; }
+      .icon-btn { width: 2.1rem; height: 2.1rem; }
       main { padding: 1rem 1rem 3rem; }
-      .hero { padding: 1.8rem 0 1.2rem; }
+      .hero { padding: 2rem 0 1.2rem; }
+      .hero .tagline { font-size: 1.05rem; }
       .grid, .hobby-grid { grid-template-columns: 1fr; }
+      .hero-actions .btn { flex: 1 1 100%; justify-content: center; }
+      .hero-meta { gap: 0.5rem 1rem; }
+      .site-footer { padding: 1.6rem 1rem 2.4rem; }
+      .site-footer .footer-links { gap: 0.5rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
 
     /* ── Print (Save as PDF) ───────────────────────────────────── */
