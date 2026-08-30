@@ -383,6 +383,7 @@
     <div class="footer-name">{{ config.title }} — {{ config.extra.role }}</div>
     <div class="footer-links">
       {% if config.extra.github %}<a href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
+      {% if config.extra.linkedin %}· <a href="{{ config.extra.linkedin }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
       {% if config.extra.location %}<span>{{ config.extra.location }}</span>{% endif %}
     </div>
     <p style="margin: 0.6em 0 0; opacity: 0.75;">Built with Zola on NixOS · content managed from a SQLite-backed CV store</p>

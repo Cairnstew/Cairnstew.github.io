@@ -1,6 +1,6 @@
 +++
 title = "Minecraft modding (NeoForge / Fabric)"
-weight = 7
+weight = 9
 draft = false
 
 [extra]

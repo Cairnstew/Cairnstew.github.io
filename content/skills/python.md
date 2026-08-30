@@ -7,4 +7,4 @@ draft = false
 category = "Programming"
 proficiency = "Intermediate"
 +++
-Published Python projects: uup-builder (Windows ISO creation and customization), uup-dump-api-py (API wrapper), comfyscripting / comfyscripting-code-server (ComfyUI scripting environments), nixos-deploy-tool, and the SQLite-backed MCP tooling behind this site.
+Used professionally for data work (Pandas) and web apps (Django) at an Austin research firm, and in published projects: uup-builder (Windows ISO tooling), uup-dump-api-py, comfyscripting, nixos-deploy-tool, and the SQLite-backed MCP tooling behind this site.

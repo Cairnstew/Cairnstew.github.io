@@ -1,6 +1,6 @@
 +++
 title = "Academic group projects (DevOps & cloud/web)"
-weight = 3
+weight = 6
 date = 2026-01-01
 draft = false
 

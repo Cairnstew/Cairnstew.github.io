@@ -1,6 +1,6 @@
 +++
 title = "MSc Big Data Technologies"
-weight = 2
+weight = 3
 date = 2026-01-01
 draft = false
 

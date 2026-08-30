@@ -1,6 +1,6 @@
 +++
 title = "Game server administration"
-weight = 4
+weight = 8
 date = 2023-01-01
 draft = false
 
