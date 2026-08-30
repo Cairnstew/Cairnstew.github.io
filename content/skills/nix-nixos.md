@@ -1,17 +1,10 @@
 +++
 title = "Nix / NixOS"
 weight = 1
-draft = true
+draft = false
 
 [extra]
 category = "Systems"
 proficiency = "Advanced"
 +++
-
-**DRAFT — seeded from the public repo inventory, pending human review.**
-
-Long-standing personal NixOS configuration ([Cairnstew/nixos-config]) and
-several published Nix tooling repos (agenix-manager, tailscale-manager,
-dscnix, my-flake-templates).
-
-[Cairnstew/nixos-config]: https://github.com/Cairnstew/nixos-config
+Long-standing personal NixOS configuration ([Cairnstew/nixos-config](https://github.com/Cairnstew/nixos-config)) — a multi-host fleet (laptop, desktop, server, WSL) built on flake-parts and nixos-unified, with Home Manager and agenix secrets. Also several published Nix tooling repos: agenix-manager, tailscale-manager, dscnix, my-flake-templates, compose2nix-flake, uup-converter.

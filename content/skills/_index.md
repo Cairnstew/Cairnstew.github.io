@@ -3,5 +3,4 @@ title = "Skills"
 sort_by = "weight"
 +++
 
-**DRAFT section** — entries seeded from the public repo inventory (Tier 0
-§6.2) and pending human review.
+The technologies I work with day-to-day and the projects that back them up. Proficiency levels are self-assessed.

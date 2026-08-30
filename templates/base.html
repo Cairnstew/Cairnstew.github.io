@@ -5,30 +5,411 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ config.title }}{% endblock title %}</title>
   <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.title }}">
+  <meta property="og:title" content="{% block og_title %}{{ config.title }}{% endblock og_title %}">
+  <meta property="og:description" content="{% block og_description %}{{ config.description }}{% endblock og_description %}">
+  <meta property="og:url" content="{{ get_url(path="/", trailing_slash=true) | safe }}">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Ctext x='32' y='43' font-family='system-ui,sans-serif' font-size='28' font-weight='700' fill='white' text-anchor='middle'%3ESC%3C/text%3E%3C/svg%3E">
+
   <style>
-    :root { color-scheme: light dark; }
-    body { max-width: 46rem; margin: 0 auto; padding: 1rem 1.5rem; font-family: system-ui, sans-serif; line-height: 1.5; }
-    nav a { margin-right: 0.75rem; }
-    h1, h2 { line-height: 1.2; }
-    .muted { opacity: 0.65; }
-    footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid; opacity: 0.55; font-size: 0.9rem; }
+    {%- set light = "#f7f6f3" -%}
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --text: #1d1c1a;
+      --muted: #6c6a66;
+      --border: #e6e4df;
+      --accent: #4f46e5;
+      --accent-strong: #4338ca;
+      --accent-soft: rgba(79, 70, 229, 0.09);
+      --on-accent: #ffffff;
+      --radius: 14px;
+      --shadow: 0 1px 2px rgba(20, 18, 12, 0.04), 0 8px 24px -12px rgba(20, 18, 12, 0.12);
+      --shadow-hover: 0 2px 4px rgba(20, 18, 12, 0.05), 0 16px 32px -14px rgba(20, 18, 12, 0.18);
+    }
+    :root.dark {
+      color-scheme: dark;
+      --bg: #0e0d10;
+      --surface: #18171c;
+      --text: #eae9ec;
+      --muted: #9a97a0;
+      --border: #26242c;
+      --accent: #848cf8;
+      --accent-strong: #a5acff;
+      --accent-soft: rgba(132, 140, 248, 0.12);
+      --on-accent: #10101a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+      --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 16px 32px -14px rgba(0, 0, 0, 0.6);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light):not(.dark) {
+        color-scheme: dark;
+        --bg: #0e0d10;
+        --surface: #18171c;
+        --text: #eae9ec;
+        --muted: #9a97a0;
+        --border: #26242c;
+        --accent: #848cf8;
+        --accent-strong: #a5acff;
+        --accent-soft: rgba(132, 140, 248, 0.12);
+        --on-accent: #10101a;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+        --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 16px 32px -14px rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    main {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    h1, h2, h3, h4 { line-height: 1.22; letter-spacing: -0.015em; margin: 0 0 0.6em; }
+    h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 800; }
+    h2 { font-size: 1.5rem; font-weight: 700; }
+    h3 { font-size: 1.12rem; font-weight: 650; }
+    p { margin: 0 0 1em; }
+    .muted { color: var(--muted); }
+    svg { display: inline-block; vertical-align: middle; }
+
+    /* ── Header / nav ─────────────────────────────────────────── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand {
+      font-weight: 750;
+      font-size: 1.05rem;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-right: auto;
+    }
+    .brand:hover { text-decoration: none; color: var(--accent); }
+    .nav-links { display: flex; gap: 1.1rem; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: 0.95rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .theme-toggle .moon { display: none; }
+    :root.dark .theme-toggle .sun { display: none; }
+    :root.dark .theme-toggle .moon { display: block; }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero { padding: 2.6rem 0 2rem; }
+    .hero .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      margin-bottom: 1.1rem;
+    }
+    .hero .eyebrow svg { width: 14px; height: 14px; }
+    .hero .role {
+      font-size: 1.15rem;
+      font-weight: 550;
+      color: var(--muted);
+      margin: -0.2rem 0 0.9rem;
+    }
+    .hero .tagline { font-size: 1.12rem; color: var(--text); max-width: 44rem; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; margin: 1.4rem 0; color: var(--muted); font-size: 0.95rem; }
+    .hero-meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .hero-meta svg { width: 15px; height: 15px; opacity: 0.8; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+    /* ── Section blocks on the index ───────────────────────────── */
+    .block { margin-top: 2.6rem; }
+    .block-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .block-head h2 { margin: 0; font-size: 1.3rem; }
+    .block-head .more { font-size: 0.9rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+    /* ── Cards ─────────────────────────────────────────────────── */
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    .card h3 { margin: 0; }
+    .card h3 a { color: var(--text); }
+    .card h3 a:hover { color: var(--accent); text-decoration: none; }
+    .card .desc { color: var(--muted); font-size: 0.92rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card .foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: auto; padding-top: 0.4rem; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+      font-weight: 650;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .pill svg { width: 12px; height: 12px; }
+
+    .level { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--muted); }
+    .level .bar { flex: 1; height: 5px; border-radius: 999px; background: var(--border); overflow: hidden; }
+    .level .bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-strong)); width: 55%; }
+    .level[data-proficiency="Advanced"] .bar > span { width: 92%; }
+    .level[data-proficiency="Intermediate"] .bar > span { width: 66%; }
+    .level[data-proficiency="Beginner"] .bar > span { width: 45%; }
+
+    /* ── Timeline ──────────────────────────────────────────────── */
+    .timeline { list-style: none; margin: 0; padding: 0; }
+    .timeline > li { position: relative; padding: 0 0 1.5rem 1.7rem; border-left: 2px solid var(--border); }
+    .timeline > li:last-child { padding-bottom: 0.2rem; }
+    .timeline > li::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+    .timeline .when { font-size: 0.82rem; font-weight: 650; color: var(--accent); letter-spacing: 0.02em; }
+    .timeline h3 { margin: 0.15rem 0 0.1rem; }
+    .timeline .org { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .timeline .desc { color: var(--muted); font-size: 0.94rem; margin: 0.2rem 0 0; }
+
+    /* ── Hobby chips ───────────────────────────────────────────── */
+    .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.95rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 550;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .chip:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-1px); }
+    .chip svg { width: 16px; height: 16px; color: var(--accent); }
+
+    .hobby-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .hobby-grid .card { flex-direction: row; align-items: flex-start; gap: 0.9rem; }
+    .hobby-grid .card .icon {
+      flex: 0 0 auto;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hobby-grid .card .icon svg { width: 22px; height: 22px; }
+    .hobby-grid .card .body h3 { font-size: 1rem; }
+    .hobby-grid .card .body .desc { -webkit-line-clamp: 2; }
+
+    /* ── Page header / prose ───────────────────────────────────── */
+    .page-head { padding: 2rem 0 1.2rem; }
+    .page-head h1 { margin-bottom: 0.25rem; }
+    .page-head .meta-line { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; align-items: center; color: var(--muted); font-size: 0.95rem; }
+    .page-head .meta-line a.external { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .page-head .meta-line svg { width: 14px; height: 14px; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; font-weight: 600; color: var(--muted); margin-top: 0.8rem; }
+    .back-link:hover { color: var(--accent); text-decoration: none; }
+    .back-link svg { width: 14px; height: 14px; transform: rotate(180deg); }
+
+    .prose { max-width: 52rem; }
+    .prose h2, .prose h3 { margin-top: 1.6rem; }
+    .prose ul { padding-left: 1.3rem; }
+    .prose li { margin: 0.3rem 0; }
+    .prose blockquote { margin: 1.2rem 0; padding: 0.2rem 1rem; border-left: 3px solid var(--accent); color: var(--muted); background: var(--accent-soft); border-radius: 0 8px 8px 0; }
+    .prose code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      padding: 0.1em 0.4em;
+      border-radius: 6px;
+    }
+    .prose a.external svg { width: 13px; height: 13px; margin-left: 2px; }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+      padding: 2rem 1.5rem 3rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .site-footer .footer-name { font-weight: 650; color: var(--text); }
+    .site-footer .footer-links { margin: 0.4rem 0; display: inline-flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .site-footer a { color: var(--muted); }
+    .site-footer a:hover { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .nav-links { gap: 0.8rem; }
+      main { padding: 1rem 1rem 3rem; }
+      .hero { padding: 1.8rem 0 1.2rem; }
+      .grid, .hobby-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Print (Save as PDF) ───────────────────────────────────── */
+    @media print {
+      :root { color-scheme: light; --bg: #ffffff; --surface: #ffffff; --text: #111; --muted: #444; --border: #ddd; --accent: #111; --accent-strong: #111; --accent-soft: #eee; --on-accent: #fff; }
+      .site-header, .icon-btn, .hero-actions, .block-head .more, .back-link, .site-footer { display: none; }
+      body { font-size: 11pt; }
+      main { max-width: 100%; padding: 0; }
+      .card, .timeline > li, .chip { box-shadow: none; break-inside: avoid; }
+      .hero { padding: 0.5rem 0 1rem; }
+      a { color: #111; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #555; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="{{ get_url(path="/") }}">Home</a>
-      {% if section is defined and section.subsections -%}
-        {% for s in section.subsections -%}
-          {% set sub = get_section(path=s) -%}
-          <a href="{{ sub.permalink }}">{{ sub.title }}</a>
-        {%- endfor %}
-      {%- endif %}
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="{{ get_url(path="/") }}">{{ config.title }}</a>
+      <div class="nav-links">
+        <a href="{{ get_url(path="/") }}">Home</a>
+        <a href="{{ get_url(path="skills/") }}">Skills</a>
+        <a href="{{ get_url(path="experience/") }}">Experience</a>
+        <a href="{{ get_url(path="hobbies/") }}">Hobbies</a>
+      </div>
+      <button id="theme-toggle" class="icon-btn theme-toggle" type="button" aria-label="Toggle light / dark theme" title="Toggle light / dark theme">
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </nav>
   </header>
+
   <main>
     {% block content %}{% endblock content %}
   </main>
-  <footer>{{ config.title }} · generated with Zola</footer>
+
+  <footer class="site-footer">
+    <div class="footer-name">{{ config.title }} — {{ config.extra.role }}</div>
+    <div class="footer-links">
+      {% if config.extra.github %}<a href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
+      {% if config.extra.location %}<span>{{ config.extra.location }}</span>{% endif %}
+    </div>
+    <p style="margin: 0.6em 0 0; opacity: 0.75;">Built with Zola on NixOS · content managed from a SQLite-backed CV store</p>
+  </footer>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var key = "cv-theme";
+      function set(mode) {
+        root.classList.toggle("dark", mode === "dark");
+        root.classList.toggle("light", mode === "light");
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(key); } catch (e) {}
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      set(saved || (prefersDark ? "dark" : "light"));
+      var btn = document.getElementById("theme-toggle");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          var next = root.classList.contains("dark") ? "light" : "dark";
+          set(next);
+          try { localStorage.setItem(key, next); } catch (e) {}
+        });
+      }
+    })();
+  </script>
+  {% block scripts %}{% endblock scripts %}
 </body>
 </html>

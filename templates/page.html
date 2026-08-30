@@ -1,17 +1,55 @@
 {% extends "base.html" %}
 
 {% block title %}{{ page.title }} · {{ config.title }}{% endblock title %}
+{% block description %}{% if page.description %}{{ page.description }}{% else %}{{ config.description }}{% endif %}{% endblock description %}
 
 {% block content %}
-  <h1>{{ page.title }}</h1>
-  {% if page.extra is defined and page.extra.organization -%}
-    <p class="muted">{{ page.extra.organization }}
-      {%- if page.extra.start_year %}, {{ page.extra.start_year }}{% endif -%}
-      {%- if page.extra.end_year %}–{{ page.extra.end_year }}{% endif -%}
-    </p>
-  {%- endif %}
-  {% if page.extra is defined and page.extra.proficiency -%}
-    <p class="muted">proficiency: {{ page.extra.proficiency }}</p>
-  {%- endif %}
-  {{ page.content | safe }}
+  {% set parent_sec = get_section(path=page.ancestors | last) %}
+
+  <div class="page-head">
+    <h1>{{ page.title }}</h1>
+    <div class="meta-line">
+      {% if page.extra is defined and page.extra.organization %}
+        <span>{{ page.extra.organization }}</span>
+      {% endif %}
+      {% if page.extra is defined and page.extra.start_year %}
+        <span>
+          {{ page.extra.start_year }}{% if page.extra.end_year is defined and page.extra.end_year %} – {{ page.extra.end_year }}{% else %} – present{% endif %}
+        </span>
+      {% endif %}
+      {% if page.extra is defined and page.extra.proficiency %}
+        <span class="pill">{{ page.extra.proficiency }}</span>
+      {% endif %}
+      {% if page.extra is defined and page.extra.category %}
+        <span class="pill">{{ page.extra.category }}</span>
+      {% endif %}
+      {% if page.extra is defined and page.extra.url %}
+        <a class="external" href="{{ page.extra.url }}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+          View project
+        </a>
+      {% endif %}
+    </div>
+    <a class="back-link" href="{{ parent_sec.permalink }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Back to {{ parent_sec.title }}
+    </a>
+  </div>
+
+  {% if page.content is defined and page.content | trim | length > 0 %}
+    <div class="prose">{{ page.content | safe }}</div>
+  {% endif %}
+
+  {% if page.extra is defined and page.extra.category %}
+    {# Skill page: show the level bar #}
+    <div class="level" data-proficiency="{{ page.extra.proficiency | default(value='') }}" style="max-width: 24rem; margin-top: 1.5rem;">
+      <span>{{ page.extra.proficiency | default(value="") }}</span>
+      <div class="bar"><span></span></div>
+    </div>
+  {% endif %}
+
+  {% if page.extra is defined and page.extra.organization %}
+    {# Experience page: hint that more is in the section #}
+    <p class="muted" style="margin-top: 2rem; font-size: 0.9rem;">Part of <a href="{{ parent_sec.permalink }}">{{ parent_sec.title }}</a></p>
+  {% endif %}
 {% endblock content %}

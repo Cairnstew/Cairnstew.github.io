@@ -1,13 +1,20 @@
-# Zola configuration for the CV / portfolio site.
+# Zola configuration for the CV / portfolio site (Cairnstew.github.io).
 #
-# visible DRAFT content (front-matter `draft = true`) is never rendered —
-# the seed rows in this repo are all drafts pending human review.
+# Content is managed through the sqlite store (schema.sql + seed.sql) and
+# rendered to content/*.md by render.py; templates live in templates/.
 
 base_url = "https://Cairnstew.github.io"
-title = "Sean Cairns — CV / Portfolio"
-description = "Work, skills and hobbies of Sean Cairns."
+title = "Sean Cairns"
+description = "Portfolio and CV of Sean Cairns — NixOS systems engineer, open-source author, and Big Data postgraduate."
 author = "Sean Cairns"
 default_language = "en"
 build_search_index = false
 
 # No theme: templates live in templates/.
+
+[extra]
+role = "Systems Engineer · Open-Source Author · Big Data Postgraduate"
+tagline = "I build reproducible infrastructure and open-source tooling — declarative NixOS fleets, secret management, and data pipelines."
+github = "https://github.com/Cairnstew"
+location = "Dripping Springs, Texas, USA"
+open_to_work = true

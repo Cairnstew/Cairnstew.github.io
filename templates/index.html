@@ -1,13 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>{{ config.title }}</h1>
-  {{ section.content | safe }}
-  <h2>Sections</h2>
-  <ul>
-    {% for s in section.subsections -%}
-      {% set sub = get_section(path=s) -%}
-      <li><a href="{{ sub.permalink }}">{{ sub.title }}</a></li>
-    {%- endfor %}
-  </ul>
+  <section class="hero">
+    <span class="eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+      CV &amp; Portfolio
+    </span>
+    <h1>{{ config.title }}</h1>
+    <p class="role">{{ config.extra.role }}</p>
+    <p class="tagline">{{ config.extra.tagline }}</p>
+
+    <div class="hero-meta">
+      {% if config.extra.location %}
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ config.extra.location }}
+        </span>
+      {% endif %}
+      {% if config.extra.open_to_work %}
+        <span class="pill">Open to remote opportunities</span>
+      {% endif %}
+    </div>
+
+    <div class="hero-actions">
+      {% if config.extra.github %}
+        <a class="btn" href="{{ config.extra.github }}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .4.2.7.8.6A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg>
+          GitHub
+        </a>
+      {% endif %}
+      <button class="btn" type="button" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save as PDF
+      </button>
+    </div>
+  </section>
+
+  {# About — pulled from content/_index.md body #}
+  {% if section.content is defined and section.content | trim | length > 0 %}
+    <section class="block">
+      <div class="block-head"><h2>About</h2></div>
+      <div class="prose">{{ section.content | safe }}</div>
+    </section>
+  {% endif %}
+
+  {% set skills = get_section(path="skills/_index.md") %}
+  {% set experience = get_section(path="experience/_index.md") %}
+  {% set hobbies = get_section(path="hobbies/_index.md") %}
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Skills</h2>
+      <a class="more" href="{{ get_url(path="skills/") }}">All skills →</a>
+    </div>
+    <div class="grid">
+      {% for page in skills.pages %}
+        <article class="card">
+          <h3><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+          {% if page.extra is defined and page.extra.category %}
+            <span class="pill">{{ page.extra.category }}</span>
+          {% endif %}
+          <div class="level" data-proficiency="{{ page.extra.proficiency | default(value='') }}">
+            <span>{{ page.extra.proficiency | default(value="") }}</span>
+            <div class="bar"><span></span></div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Experience</h2>
+      <a class="more" href="{{ get_url(path="experience/") }}">Full history →</a>
+    </div>
+    <ul class="timeline">
+      {% for page in experience.pages %}
+        <li>
+          <div class="when">
+            {{ page.extra.start_year | default(value="") }}{% if page.extra.end_year is defined and page.extra.end_year %} – {{ page.extra.end_year }}{% elif page.extra.start_year is defined and page.extra.start_year %} – present{% endif %}
+          </div>
+          <h3><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+          {% if page.extra is defined and page.extra.organization %}<div class="org">{{ page.extra.organization }}</div>{% endif %}
+          {% if page.content is defined and page.content | trim | length > 0 %}
+            <p class="desc">{{ page.content | striptags | truncate(length=180) }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Hobbies</h2>
+      <a class="more" href="{{ get_url(path="hobbies/") }}">All hobbies →</a>
+    </div>
+    <div class="chips">
+      {% for page in hobbies.pages %}
+        {% set lt = page.title | lower %}
+        <a class="chip" href="{{ page.permalink }}">
+          {%- if "minecraft" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg>
+          {%- elif "3d" in lt or "fabrication" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5"/><path d="M12 22V12"/></svg>
+          {%- elif "art" in lt or "vfx" in lt or "digital" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 1 10-10c0 2-1.6 3-3 3h-2a2 2 0 0 0-2 2c0 .5.2 1 .2 1.4.2.6.3 1.2-.2 1.6-.6.6-1.4 1-3 1z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15.5" cy="7.5" r="1"/><circle cx="18.5" cy="11.5" r="1"/></svg>
+          {%- elif "game" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4M8 10v4"/><path d="M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></svg>
+          {%- else -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L19.7 10l-5.8 1.9L12 17.7l-1.9-5.8L4.3 10l5.8-1.9L12 3z"/></svg>
+          {%- endif %}
+          {{ page.title }}
+        </a>
+      {% endfor %}
+    </div>
+  </section>
 {% endblock content %}

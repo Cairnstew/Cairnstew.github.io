@@ -3,16 +3,94 @@
 {% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
 
 {% block content %}
-  <h1>{{ section.title }}</h1>
-  {{ section.content | safe }}
-  <ul>
-    {% for page in section.pages -%}
-      <li>
-        <a href="{{ page.permalink }}">{{ page.title }}</a>
-        {% if page.extra is defined and page.extra.start_year -%}
-          <span class="muted">({{ page.extra.start_year }}{% if page.extra.end_year %}–{{ page.extra.end_year }}{% endif %})</span>
-        {%- endif %}
-      </li>
-    {%- endfor %}
-  </ul>
+  <div class="page-head">
+    <h1>{{ section.title }}</h1>
+    {% if section.content is defined and section.content | trim | length > 0 %}
+      <div class="prose muted" style="max-width: 44rem;">{{ section.content | safe }}</div>
+    {% endif %}
+  </div>
+
+  {% if section.path is starting_with("/skills") %}
+    {# Skills: card grid grouped by category #}
+    {% set categories = [] %}
+    {% for page in section.pages %}
+      {% if page.extra is defined and page.extra.category is defined %}
+        {% set_global categories = categories | concat(with=[page.extra.category]) %}
+      {% endif %}
+    {% endfor %}
+    {% set categories = categories | unique %}
+    {% for cat in categories %}
+      <section class="block">
+        <div class="block-head"><h2>{{ cat }}</h2></div>
+        <div class="grid">
+          {% for page in section.pages %}
+            {% if page.extra is defined and page.extra.category == cat %}
+              <article class="card">
+                <h3><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+                <div class="level" data-proficiency="{{ page.extra.proficiency | default(value='') }}">
+                  <span>{{ page.extra.proficiency | default(value="") }}</span>
+                  <div class="bar"><span></span></div>
+                </div>
+                {% if page.content is defined and page.content | trim | length > 0 %}
+                  <p class="desc">{{ page.content | striptags }}</p>
+                {% endif %}
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+
+  {% elif section.path is starting_with("/experience") %}
+    {# Experience: timeline #}
+    <ul class="timeline" style="max-width: 52rem;">
+      {% for page in section.pages %}
+        <li>
+          <div class="when">
+            {{ page.extra.start_year | default(value="") }}{% if page.extra.end_year is defined and page.extra.end_year %} – {{ page.extra.end_year }}{% elif page.extra.start_year is defined and page.extra.start_year %} – present{% endif %}
+          </div>
+          <h3><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+          {% if page.extra is defined and page.extra.organization %}<div class="org">{{ page.extra.organization }}</div>{% endif %}
+          {% if page.content is defined and page.content | trim | length > 0 %}
+            <div class="desc prose">{{ page.content | safe }}</div>
+          {% endif %}
+          {% if page.extra is defined and page.extra.url %}
+            <p style="margin: 0.5rem 0 0;"><a class="external" href="{{ page.extra.url }}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+              View project</a>
+            </p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+    {# Hobbies: cards with icons #}
+    <div class="hobby-grid">
+      {% for page in section.pages %}
+        {% set lt = page.title | lower %}
+        <a class="card" href="{{ page.permalink }}" style="text-decoration: none; color: inherit;">
+          <span class="icon">
+          {%- if "minecraft" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg>
+          {%- elif "3d" in lt or "fabrication" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5"/><path d="M12 22V12"/></svg>
+          {%- elif "art" in lt or "vfx" in lt or "digital" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 1 10-10c0 2-1.6 3-3 3h-2a2 2 0 0 0-2 2c0 .5.2 1 .2 1.4.2.6.3 1.2-.2 1.6-.6.6-1.4 1-3 1z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15.5" cy="7.5" r="1"/><circle cx="18.5" cy="11.5" r="1"/></svg>
+          {%- elif "game" in lt -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4M8 10v4"/><path d="M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></svg>
+          {%- else -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L19.7 10l-5.8 1.9L12 17.7l-1.9-5.8L4.3 10l5.8-1.9L12 3z"/></svg>
+          {%- endif %}
+          </span>
+          <span class="body">
+            <h3>{{ page.title }}</h3>
+            {% if page.content is defined and page.content | trim | length > 0 %}
+              <p class="desc">{{ page.content | striptags }}</p>
+            {% endif %}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
 {% endblock content %}
