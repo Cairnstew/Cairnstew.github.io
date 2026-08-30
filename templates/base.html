@@ -64,14 +64,20 @@
 
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
+    :root {
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--font-body);
       font-size: 17px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
       transition: background-color 0.25s ease, color 0.25s ease;
     }
     main {
@@ -81,10 +87,18 @@
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    h1, h2, h3, h4 { line-height: 1.22; letter-spacing: -0.015em; margin: 0 0 0.6em; }
-    h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 800; }
-    h2 { font-size: 1.5rem; font-weight: 700; }
-    h3 { font-size: 1.12rem; font-weight: 650; }
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.6em;
+      font-weight: 650;
+      text-wrap: balance;
+    }
+    h1 { font-size: clamp(2.2rem, 5.5vw, 3.15rem); font-weight: 750; }
+    h2 { font-size: 1.6rem; }
+    h3 { font-size: 1.14rem; }
+    .block-head h2, .page-head h1 { font-weight: 700; }
     p { margin: 0 0 1em; }
     .muted { color: var(--muted); }
     svg { display: inline-block; vertical-align: middle; }
@@ -162,7 +176,7 @@
       margin: -0.2rem 0 0.9rem;
     }
     .hero .tagline { font-size: 1.12rem; color: var(--text); max-width: 44rem; }
-    .hero-meta { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; margin: 1.4rem 0; color: var(--muted); font-size: 0.95rem; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; margin: 1.4rem 0; color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
     .hero-meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
     .hero-meta svg { width: 15px; height: 15px; opacity: 0.8; }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
@@ -258,7 +272,7 @@
       border: 2px solid var(--bg);
       box-shadow: 0 0 0 2px var(--accent-soft);
     }
-    .timeline .when { font-size: 0.82rem; font-weight: 650; color: var(--accent); letter-spacing: 0.02em; }
+    .timeline .when { font-size: 0.82rem; font-weight: 650; color: var(--accent); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
     .timeline h3 { margin: 0.15rem 0 0.1rem; }
     .timeline .org { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.3rem; }
     .timeline .desc { color: var(--muted); font-size: 0.94rem; margin: 0.2rem 0 0; }
@@ -315,7 +329,7 @@
     .prose li { margin: 0.3rem 0; }
     .prose blockquote { margin: 1.2rem 0; padding: 0.2rem 1rem; border-left: 3px solid var(--accent); color: var(--muted); background: var(--accent-soft); border-radius: 0 8px 8px 0; }
     .prose code {
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.88em;
       background: var(--accent-soft);
       color: var(--accent-strong);
